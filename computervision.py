@@ -12,11 +12,26 @@ def capture_from_webcam():
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
         # Define the lower and upper bounds for the RGB color you want to recognize
-        lower_rgb = (200, 0, 0)  # Replace with the lower RGB values
-        upper_rgb = (255, 255, 255)  # Replace with the upper RGB values
+        lower_rgb = (155, 210, 180)  # Replace with the lower RGB values
+        upper_rgb = (179, 255, 255)  # Replace with the upper RGB values
 
         # Create a mask based on the RGB color range
         mask = cv2.inRange(hsv_frame, lower_rgb, upper_rgb)
+
+        # Calculate the moments of the mask
+        M = cv2.moments(mask)
+
+        # Using moments to calculate the centroid (center point) coordinates
+        # Note to prevent division by zero
+        if M["m00"] != 0:
+            centerX = int(M["m10"] / M["m00"])
+            centerY = int(M["m01"] / M["m00"])
+            print(centerX, centerY)
+            cv2.circle(frame, (centerX, centerY), 5, (0, 255, 0), -1)
+        else:
+            centerX, centerY = -1, -1  # Or any other default value that indicates failure or absence
+            print("No centroid found due to zero division.")
+
 
         # Apply the mask to the original frame
         result = cv2.bitwise_and(frame, frame, mask=mask)
